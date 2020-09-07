@@ -3,11 +3,9 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Blog
-subtitle: ''
-description: ''
-keywords:
-author: John Doe
+title: yleaf's Blog
+description: 一些笔记，尽量没废话
+author: yleaf
 language: en
 timezone: ''
 
