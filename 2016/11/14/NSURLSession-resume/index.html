@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"leavesster.github.io","root":"/","scheme":"Gemini","version":"8.0.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+
+  <meta name="description" content="复现系统环境：iOS 10~10.1 (必要条件)，后台断点下载。 这是在项目中的实际遭遇，iOS 9下断点下载功能正常运行，iOS 10下，无法继续断点下载。虽然这里就一句话，但是花了接近一个下午才排查出来。（侧面说明留一台旧系统的重要性，试了半天，换上iOS 9，才发现是iOS 10的bug。） 关键字搜索：NSURLSession cancelByProducingResumeData">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NSURLSession Resume Bug(BackgroundSession)">
+<meta property="og:url" content="https://leavesster.github.io/2016/11/14/NSURLSession-resume/index.html">
+<meta property="og:site_name" content="yleaf&#39;s Blog">
+<meta property="og:description" content="复现系统环境：iOS 10~10.1 (必要条件)，后台断点下载。 这是在项目中的实际遭遇，iOS 9下断点下载功能正常运行，iOS 10下，无法继续断点下载。虽然这里就一句话，但是花了接近一个下午才排查出来。（侧面说明留一台旧系统的重要性，试了半天，换上iOS 9，才发现是iOS 10的bug。） 关键字搜索：NSURLSession cancelByProducingResumeData">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-11-14T00:00:00.000Z">
+<meta property="article:modified_time" content="2016-11-14T00:00:00.000Z">
+<meta property="article:author" content="yleaf">
+<meta property="article:tag" content="iOS">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://leavesster.github.io/2016/11/14/NSURLSession-resume/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>NSURLSession Resume Bug(BackgroundSession) | yleaf's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">yleaf's Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#iOS-10-2-Beta%E5%89%8D%E7%9A%84%E4%BF%AE%E5%A4%8D%E5%8A%9E%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">iOS 10.2 Beta前的修复办法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#TD-TR"><span class="nav-number">1.1.</span> <span class="nav-text">TD:TR</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#swift2-3%E4%B8%8Eswift3-0%E4%BB%A3%E7%A0%81"><span class="nav-number">1.2.</span> <span class="nav-text">swift2.3与swift3.0代码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Objective-C%E4%BB%A3%E7%A0%81"><span class="nav-number">1.3.</span> <span class="nav-text">Objective-C代码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BD%AC%E6%8D%A2%E5%90%90%E6%A7%BD"><span class="nav-number">1.4.</span> <span class="nav-text">转换吐槽</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#demo%E5%A4%A7%E6%B3%95%E5%A5%BD"><span class="nav-number">1.5.</span> <span class="nav-text">demo大法好</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E4%BB%A3%E7%A0%81%E5%90%8E%E7%9A%84%E5%BC%82%E6%83%B3%E5%A4%A9%E5%BC%80"><span class="nav-number">1.6.</span> <span class="nav-text">查看代码后的异想天开</span></a></li></ol></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">yleaf</p>
+  <div class="site-description" itemprop="description">一些笔记，尽量没废话</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://leavesster.github.io/2016/11/14/NSURLSession-resume/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yleaf">
+      <meta itemprop="description" content="一些笔记，尽量没废话">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yleaf's Blog">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          NSURLSession Resume Bug(BackgroundSession)
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2016-11-14 00:00:00" itemprop="dateCreated datePublished" datetime="2016-11-14T00:00:00+00:00">2016-11-14</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>复现系统环境：iOS 10~10.1 (必要条件)，后台断点下载。</p>
+<p>这是在项目中的实际遭遇，iOS 9下断点下载功能正常运行，iOS 10下，无法继续断点下载。虽然这里就一句话，但是花了接近一个下午才排查出来。（侧面说明留一台旧系统的重要性，试了半天，换上iOS 9，才发现是iOS 10的bug。）</p>
+<p>关键字搜索：<a target="_blank" rel="noopener" href="https://forums.developer.apple.com/thread/63585">NSURLSession cancelByProducingResumeData</a></p>
+<blockquote>
+<p>The iOS 10 side of the fix is being tracked as 27744391.  At this point it looks like it won’t catch the 10.1 bus …<br>27744391 is reported as fixed in the current 10.2 beta seed (14C5062e).  If you’re having problems with:<br>explicit resumes failing with NSURLErrorCannotWriteToFile (-3003)<br>downloads failing with NSURLErrorUnsupportedURL (-1002) after a network connectivity failure<br>please try again on that seed and, if you still see problems, please file a bug and post the bug number here.<br>Share and Enjoy </p>
+</blockquote>
+<p>可以看到，报告在iOS 10.2 beta中修复，且该bug只在iOS 10存在，所以如果是iOS 9下也有问题，就可能不仅仅是这个bug的问题了。</p>
+<hr>
+<h3 id="iOS-10-2-Beta前的修复办法"><a href="#iOS-10-2-Beta前的修复办法" class="headerlink" title="iOS 10.2 Beta前的修复办法"></a>iOS 10.2 Beta前的修复办法</h3><h4 id="TD-TR"><a href="#TD-TR" class="headerlink" title="TD:TR"></a>TD:TR</h4><p>后面就简单写了点自己修复中的遭遇，TDLR,可以直接看下面给的超链接。<br>swift为原作者回答，OC版为我自行转换后的代码。</p>
+<hr>
+<h4 id="swift2-3与swift3-0代码"><a href="#swift2-3与swift3-0代码" class="headerlink" title="swift2.3与swift3.0代码"></a>swift2.3与swift3.0代码</h4><p>有人在上面的链接下贴了一个他的Fix方法：<a target="_blank" rel="noopener" href="http://stackoverflow.com/questions/39346231/resume-nsurlsession-on-ios10/39347461#39347461">resume-nsurlsession-on-ios10</a>。<br>作者还很贴心的贴上了swift2.3和swift3.0版本。</p>
+<h4 id="Objective-C代码"><a href="#Objective-C代码" class="headerlink" title="Objective-C代码"></a>Objective-C代码</h4><p>在项目里用的还是Objective-C，也不想因此加个桥接混编。于是下面就自己翻译了一个版本。也贴在了StackOverflow <a target="_blank" rel="noopener" href="http://stackoverflow.com/a/40501353/4770006">resume-nsurlsession-on-ios10-the-objective-c-version</a>。<br>如果有帮助，欢迎upvote。</p>
+<hr>
+<h4 id="转换吐槽"><a href="#转换吐槽" class="headerlink" title="转换吐槽"></a>转换吐槽</h4><p>这里因为想了解下3的写法，所以只看了swift3的代码。<br>swift的判断语法糖真多。<br>swift3的API真是大变样，swift2.3不怎么看还能认出不少来，到swift3同一个API，都大变样了。<br>据说swift4还要大变样，这么玩好么，python2和3还没完事呢，也亏你是Apple御用语言，才能这方便跃进。</p>
+<hr>
+<h4 id="demo大法好"><a href="#demo大法好" class="headerlink" title="demo大法好"></a>demo大法好</h4><p>自己转换了一遍swift代码，直接放在项目里面，结果跑不通，索性把原答案的代码做了一个空项目，自己转换的代码也做了一个空项目。</p>
+<p>确定了几个点：</p>
+<ul>
+<li>URLSession必须为background才会出现断点下载问题。</li>
+<li>在继续下载时报错</li>
+</ul>
+<blockquote>
+<p>2016-xxx URLSessionbug[32176:6751444] <strong>* -[NSKeyedUnarchiver initForReadingWithData:]: data is NULL<br>2016-xxx URLSessionbug[32176:6751444] *</strong> -[NSKeyedUnarchiver initForReadingWithData:]: data is NULL<br>2016-xxx URLSessionbug[32176:6751444] Invalid resume data for background download. Background downloads must use http or https and must download to an accessible file</p>
+</blockquote>
+<h4 id="查看代码后的异想天开"><a href="#查看代码后的异想天开" class="headerlink" title="查看代码后的异想天开"></a>查看代码后的异想天开</h4><p>对比swift修复好了的代码，会发现<code>Invalid resume data</code>不再出现。</p>
+<p>在swift的Fix代码中</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> task <span class="operator">=</span> <span class="keyword">self</span>.downloadTaskWithResumeData(cData)</span><br></pre></td></tr></table></figure>
+<p>追踪实现代码，可以发现第一次生成的task也是错误的，两个request属性都是nil，实际也是用setValue: forkKey:方法重新再次设置了属性的，但是他没有最后一句提示。<br>在此时打印两个属性，也是一样的NSURLRequest为nil。</p>
+<p>这里我做了一件比较异想天开的事情，在downloadTask进行cancelByProducingResumeData时，直接调取task，存下两个reques属性，打算在重新生成时，用同样setValue: forKey:的方法再次设置属性。<br>结果是，同时跳出了三句错误代码。而不是和原答案中一样只跳两句。</p>
+<p>setValue: forKey在我异想天开的代码和Fix方法中，都成功绕过了readOnly的限制，成功对这两个属性进行了赋值。但是Fixed方法通过修改ResumeData数据，延缓了方法报错。<br>就像Fix方法中说的，他全部的代码主要是在修复这个问题。</p>
+<blockquote>
+<p>This problem arose from currentRequest and originalRequest NSKeyArchived encoded with an unusual root of “NSKeyedArchiveRootObjectKey” instead of NSKeyedArchiveRootObjectKey constant which is “root” literally and some other misbehaves in encoding process of NSURL(Mutable)Request</p>
+</blockquote>
+<hr>
+<p>iOS 10中由于对Request属性encode时，选择了错误的key导致了这个问题。代码里面也是因此无法恢复出Request属性，不过最后correctData并没有完全是request属性成功修复，所以要后续使用kvc赋值。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// a compensation for inability to set task requests in CFNetwork.</span></span><br><span class="line"><span class="comment">// While you still get -[NSKeyedUnarchiver initForReadingWithData:]: data is NULL error,</span></span><br><span class="line"><span class="comment">// this section will set them to real objects</span></span><br></pre></td></tr></table></figure>
+<hr>
+<p>后记，自己的OC代码其实是因为某个地方不小心把两个代码写成了死循环，导致无法成功修复bug。也是最后在OC版本的空项目里面发现的，发现过程：看着几个名字太类似了，于是加长方法名，于是发现问题。</p>
+<p>用空项目解决了不少问题，越来越发现隔离项目的必要性了。但是又懒的新建项目，所以还是需要常备不少空项目demo才是。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>yleaf
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://leavesster.github.io/2016/11/14/NSURLSession-resume/" title="NSURLSession Resume Bug(BackgroundSession)">https://leavesster.github.io/2016/11/14/NSURLSession-resume/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/01/04/WKWebview%E6%B3%A8%E6%84%8F%E7%82%B9/" rel="next" title="WKWebview的一些注意点">
+                  WKWebview的一些注意点 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yleaf</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

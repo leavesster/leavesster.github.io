@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"leavesster.github.io","root":"/","scheme":"Gemini","version":"8.0.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+
+  <meta name="description" content="使用man ssh查看ssh命令，使用man ssh_config查看ssh_config配置。 ssh 从三个地方分别获取配置内容：  命令行参数 用户设置文件(~&#x2F;.ssh&#x2F;config) 系统设置文件(&#x2F;etc&#x2F;ssh&#x2F;ssh_config)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SSH 速查手册">
+<meta property="og:url" content="https://leavesster.github.io/2020/01/01/ssh%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C/index.html">
+<meta property="og:site_name" content="yleaf&#39;s Blog">
+<meta property="og:description" content="使用man ssh查看ssh命令，使用man ssh_config查看ssh_config配置。 ssh 从三个地方分别获取配置内容：  命令行参数 用户设置文件(~&#x2F;.ssh&#x2F;config) 系统设置文件(&#x2F;etc&#x2F;ssh&#x2F;ssh_config)">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-01-01T00:00:00.000Z">
+<meta property="article:modified_time" content="2020-01-01T00:00:00.000Z">
+<meta property="article:author" content="yleaf">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://leavesster.github.io/2020/01/01/ssh%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>SSH 速查手册 | yleaf's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">yleaf's Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#server-%E7%AB%AF%E6%B7%BB%E5%8A%A0-ssh-%E5%85%AC%E9%92%A5"><span class="nav-number">1.</span> <span class="nav-text">server 端添加 ssh 公钥</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%B9%E9%87%8F%E6%B7%BB%E5%8A%A0"><span class="nav-number">1.1.</span> <span class="nav-text">批量添加</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#keep-alive"><span class="nav-number">2.</span> <span class="nav-text">keep-alive</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81%E7%A7%81%E9%92%A5"><span class="nav-number">3.</span> <span class="nav-text">验证私钥</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%87%E7%BA%B9%E6%9F%A5%E8%AF%A2"><span class="nav-number">4.</span> <span class="nav-text">指纹查询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GitHub-%E7%94%A8%E6%88%B7%E5%85%AC%E9%92%A5"><span class="nav-number">5.</span> <span class="nav-text">GitHub 用户公钥</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8%E8%84%9A%E6%9C%AC%E4%B8%AD%E4%BD%BF%E7%94%A8-ssh%EF%BC%8C%E5%B9%B6%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4"><span class="nav-number">6.</span> <span class="nav-text">在脚本中使用 ssh，并执行命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MacOS-%E4%B8%8B%EF%BC%8C%E5%BC%82%E6%AD%A5%E6%89%A7%E8%A1%8C%E5%A4%9A%E4%B8%AA%E5%91%BD%E4%BB%A4"><span class="nav-number">6.1.</span> <span class="nav-text">MacOS 下，异步执行多个命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E7%99%BB%E9%99%86%E6%97%A5%E5%BF%97"><span class="nav-number">7.</span> <span class="nav-text">查看登陆日志</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E6%8D%A2%E7%AB%AF%E5%8F%A3%EF%BC%8C%E5%85%B3%E9%97%AD%E5%AF%86%E7%A0%81"><span class="nav-number">8.</span> <span class="nav-text">更换端口，关闭密码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E5%90%AF-ssh-%E6%9C%8D%E5%8A%A1"><span class="nav-number">9.</span> <span class="nav-text">重启 ssh 服务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%90%86"><span class="nav-number">10.</span> <span class="nav-text">代理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#git"><span class="nav-number">10.1.</span> <span class="nav-text">git</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#scp"><span class="nav-number">10.2.</span> <span class="nav-text">scp</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9C%E7%A8%8B%E7%BC%96%E8%BE%91%E6%96%87%E4%BB%B6"><span class="nav-number">11.</span> <span class="nav-text">远程编辑文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="nav-number">12.</span> <span class="nav-text">端口转发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B7%B3%E6%9D%BF%E6%9C%BA"><span class="nav-number">13.</span> <span class="nav-text">跳板机</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%B7%B3%E6%9D%BF%E6%9C%BA%E4%BD%9C%E4%B8%BA%E7%BD%91%E7%BB%9C%E4%B8%AD%E8%BD%AC"><span class="nav-number">13.1.</span> <span class="nav-text">1. 跳板机作为网络中转</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ProxyJump-%E5%91%BD%E4%BB%A4"><span class="nav-number">13.1.1.</span> <span class="nav-text">ProxyJump 命令</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%B7%B3%E6%9D%BF%E6%9C%BA%E6%89%8D%E6%9C%89-target-key"><span class="nav-number">13.2.</span> <span class="nav-text">2. 跳板机才有 target key</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SSH-Agent"><span class="nav-number"></span> <span class="nav-text">SSH Agent</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Agent-forwarding-%E6%90%BA%E5%B8%A6-ssh-key-%E4%BF%A1%E6%81%AF"><span class="nav-number">1.</span> <span class="nav-text">Agent-forwarding 携带 ssh key 信息</span></a></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">yleaf</p>
+  <div class="site-description" itemprop="description">一些笔记，尽量没废话</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://leavesster.github.io/2020/01/01/ssh%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yleaf">
+      <meta itemprop="description" content="一些笔记，尽量没废话">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yleaf's Blog">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SSH 速查手册
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-01-01 00:00:00" itemprop="dateCreated datePublished" datetime="2020-01-01T00:00:00+00:00">2020-01-01</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>使用<code>man ssh</code>查看<code>ssh</code>命令，使用<code>man ssh_config</code>查看<code>ssh_config</code>配置。</p>
+<p>ssh 从三个地方分别获取配置内容：</p>
+<ol>
+<li>命令行参数</li>
+<li>用户设置文件(~/.ssh/config)</li>
+<li>系统设置文件(/etc/ssh/ssh_config)</li>
+</ol>
+<p>每一处，都只会选取第一个匹配的值。（config 文件内 host 匹配一次后，就不在读取后续 host 规则）</p>
+<h2 id="server-端添加-ssh-公钥"><a href="#server-端添加-ssh-公钥" class="headerlink" title="server 端添加 ssh 公钥"></a>server 端添加 ssh 公钥</h2><ul>
+<li>方法一</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ~/.ssh/id_rsa.pub 为公钥的本地地址</span></span><br><span class="line"><span class="comment"># 中间ssh那句，其实就是ssh登录命令。user 为远程host登录用户名，remote_host 为远程的host地址</span></span><br><span class="line">cat ~/.ssh/id_rsa.pub | ssh user@remote_host <span class="string">&quot;umask 077; mkdir -p .ssh ; cat &gt;&gt; .ssh/authorized_keys&quot;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>方法二</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># MacOS</span></span><br><span class="line">brew install ssh-copy-id</span><br><span class="line"><span class="comment"># ssh-copy-id [-h|-?|-f|-n] [-i [identity_file]] [-p port] [[-o &lt;ssh -o options&gt;] ...] [user@]hostname</span></span><br><span class="line">ssh-copy-id -i ~/.ssh/id_rsa.pub [user@]remote-host</span><br><span class="line"><span class="comment"># 操作完成后，不需要配置 ssh config，也能够直接 ssh user@remote-host 完成添加</span></span><br></pre></td></tr></table></figure>
+<h3 id="批量添加"><a href="#批量添加" class="headerlink" title="批量添加"></a>批量添加</h3><p>使用<code>shell</code>的数组以及遍历，完成批量添加。</p>
+<ul>
+<li>同步等待</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">array=(121.41.71.210 121.40.212.247 121.41.66.178 121.41.71.210 121.40.212.247 121.41.66.178 120.27.212.127 121.43.168.191 121.43.162.33 121.40.224.210 121.40.70.93 47.99.236.146 121.40.224.210 121.40.70.93 47.99.236.146)</span><br><span class="line"><span class="comment"># 不能用 ~ ，可能需要一点研究（也许能用$HOME)</span></span><br><span class="line">pub=<span class="string">&quot;/Users/yleaf/.ssh/id_rsa.pub&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 也可以写成for element in $&#123;array[*]&#125;</span></span><br><span class="line"><span class="keyword">for</span> element <span class="keyword">in</span> <span class="variable">$&#123;array[@]&#125;</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line"><span class="comment"># add ssh pub key</span></span><br><span class="line">ssh-copy-id -i <span class="variable">$pub</span> root@<span class="variable">$element</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+<h2 id="keep-alive"><a href="#keep-alive" class="headerlink" title="keep-alive"></a>keep-alive</h2><p>参考资料：<a target="_blank" rel="noopener" href="https://einverne.github.io/post/2017/05/ssh-keep-alive.html">ssh-keep-alive</a></p>
+<ul>
+<li>服务器端主动</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/ssh/sshd_config</span><br><span class="line"><span class="comment"># 每隔 30s 送 keep-alive 包保持连接</span></span><br><span class="line">ClientAliveInterval 30</span><br><span class="line"><span class="comment"># 发送 60 次无响应，则断开连接</span></span><br><span class="line">ClientAliveCountMax 60</span><br></pre></td></tr></table></figure>
+<ul>
+<li>客户端主动</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 类似</span></span><br><span class="line">vim /etc/ssh/ssh_config</span><br><span class="line"><span class="comment"># 或者</span></span><br><span class="line"><span class="comment"># vim ~/.ssh/config</span></span><br><span class="line">ServerAliveInterval 30</span><br><span class="line">ServerAliveCountMax 60</span><br></pre></td></tr></table></figure>
+<p>配置以上配置后，<code>ssh</code>每隔30s向<code>server</code>端<code>sshd</code>发送<code>keep-alive</code>包，如果发送60次，<code>server</code>无回应断开连接。<code>server</code>端配置类似。</p>
+<h2 id="验证私钥"><a href="#验证私钥" class="headerlink" title="验证私钥"></a>验证私钥</h2><ul>
+<li>使用 shell 返回码验证</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ssh -q user@downhost <span class="built_in">exit</span></span><br><span class="line"><span class="comment"># 失败为非零返回</span></span><br><span class="line"><span class="built_in">echo</span> $?</span><br><span class="line">255</span><br><span class="line"><span class="comment"># 成功时，返回 0</span></span><br><span class="line"><span class="built_in">echo</span> $?</span><br><span class="line">0</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>目前问题：没有更简单，可以用来在脚本方面使用的方法</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ssh root@47.99.236.142 -T</span><br><span class="line"><span class="comment"># 失败会有返回，成功就一直不动了……</span></span><br><span class="line">ssh: connect to host 47.99.236.142 port 22: Connection refused</span><br></pre></td></tr></table></figure>
+<ul>
+<li>GitHub 以及 GitLab</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ssh -T git@github.com</span><br><span class="line">Hi leavesster! You have successfully authenticated, but GitHub does not provide shell access.</span><br><span class="line"><span class="comment"># 端口号</span></span><br><span class="line">ssh -T git@corp.frdic.com -p 301</span><br><span class="line"><span class="comment"># 如果进行了ssh-add添加私钥操作</span></span><br><span class="line">Welcome to GitLab, ye!</span><br><span class="line"><span class="comment"># 私钥对应失败</span></span><br><span class="line">Permission denied (publickey).</span><br></pre></td></tr></table></figure>
+<h2 id="指纹查询"><a href="#指纹查询" class="headerlink" title="指纹查询"></a>指纹查询</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 不同的指纹方式</span></span><br><span class="line">ssh-keygen -lf ~/.ssh/id_rsa.pub</span><br><span class="line">ssh-keygen -E md5 -lf ~/.ssh/id_rsa.pub</span><br></pre></td></tr></table></figure>
+<ul>
+<li>私钥反查公钥</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 通过私钥，查询出公钥内容</span><br><span class="line">ssh-keygen -y -f ~&#x2F;.ssh&#x2F;id_rsa</span><br></pre></td></tr></table></figure>
+<h2 id="GitHub-用户公钥"><a href="#GitHub-用户公钥" class="headerlink" title="GitHub 用户公钥"></a>GitHub 用户公钥</h2><p>访问 <code>https://api.github.com/users/:username/keys</code> 将 :username 替换为用户名。</p>
+<h2 id="在脚本中使用-ssh，并执行命令"><a href="#在脚本中使用-ssh，并执行命令" class="headerlink" title="在脚本中使用 ssh，并执行命令"></a>在脚本中使用 ssh，并执行命令</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ssh 成功后，在对应主机执行 command </span></span><br><span class="line">ssh host -tt <span class="built_in">command</span>;</span><br></pre></td></tr></table></figure>
+<p>-tt 强制分配伪终端</p>
+<h3 id="MacOS-下，异步执行多个命令"><a href="#MacOS-下，异步执行多个命令" class="headerlink" title="MacOS 下，异步执行多个命令"></a>MacOS 下，异步执行多个命令</h3><figure class="highlight zsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">osascript -e <span class="string">&#x27;tell app &quot;Terminal&quot;</span></span><br><span class="line"><span class="string">    do script &quot;ssh host1 -tt \&quot;wget https://example.com/init.sh &amp;&amp; chmod 777 ./init.sh &amp;&amp; ./init.sh\&quot;&quot;</span></span><br><span class="line"><span class="string">end tell&#x27;</span></span><br><span class="line">osascript -e <span class="string">&#x27;tell app &quot;Terminal&quot;</span></span><br><span class="line"><span class="string">    do script &quot;ssh host2 -tt \&quot;wget https://example.com/init.sh &amp;&amp; chmod 777 ./init.sh &amp;&amp; ./init.sh\&quot;&quot;</span></span><br><span class="line"><span class="string">end tell&#x27;</span></span><br><span class="line">osascript -e <span class="string">&#x27;tell app &quot;Terminal&quot;</span></span><br><span class="line"><span class="string">    do script &quot;ssh host3 -tt \&quot;wget https://example.com/init.sh &amp;&amp; chmod 777 ./init.sh &amp;&amp; ./init.sh\&quot;&quot;</span></span><br><span class="line"><span class="string">end tell&#x27;</span></span><br></pre></td></tr></table></figure>
+<h2 id="查看登陆日志"><a href="#查看登陆日志" class="headerlink" title="查看登陆日志"></a>查看登陆日志</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># server 端</span></span><br><span class="line"><span class="built_in">cd</span> /var/<span class="built_in">log</span></span><br><span class="line">less secure</span><br></pre></td></tr></table></figure>
+<h2 id="更换端口，关闭密码"><a href="#更换端口，关闭密码" class="headerlink" title="更换端口，关闭密码"></a>更换端口，关闭密码</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/ssh/sshd_config</span><br><span class="line"></span><br><span class="line"><span class="comment"># 默认端口22，修改后需要使用`ssh -p 322 name@remote_host`进行登陆</span></span><br><span class="line">Port 322</span><br><span class="line"></span><br><span class="line"><span class="comment"># 禁止密码登陆</span></span><br><span class="line">PasswordAuthentication no</span><br><span class="line"><span class="comment"># 响应认证变化？触发按键之类操作，redhat 默认关闭</span></span><br><span class="line">ChallengeResponseAuthentication no</span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://blog.tankywoo.com/linux/2013/09/14/ssh-passwordauthentication-vs-challengeresponseauthentication.html">SSH PasswordAuthentication vs ChallengeResponseAuthentication 14 Sep 2013</a></p>
+<blockquote>
+<p>配置完成后，需要重启 ssh 服务才能生效</p>
+</blockquote>
+<h2 id="重启-ssh-服务"><a href="#重启-ssh-服务" class="headerlink" title="重启 ssh 服务"></a>重启 ssh 服务</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#RHEL/CentOS系统</span></span><br><span class="line">service sshd restart</span><br><span class="line"><span class="comment">#ubuntu系统</span></span><br><span class="line">service ssh restart</span><br><span class="line"><span class="comment">#debian系统</span></span><br><span class="line">/etc/init.d/ssh restart</span><br></pre></td></tr></table></figure>
+<h2 id="代理"><a href="#代理" class="headerlink" title="代理"></a>代理</h2><p>ssh 不走 shell 的环境变量代理，需要在<code>sshconfig</code>中自行配置。同时，通过<code>ssh</code>进行连接的工具，也需要在<code>ssh_config</code>中配置。</p>
+<h3 id="git"><a href="#git" class="headerlink" title="git"></a>git</h3><p><code>git clone</code>地址为<code>git@github.com</code>或者<code>ssh</code>协议的连接，都是走<code>ssh</code>的。</p>
+<h3 id="scp"><a href="#scp" class="headerlink" title="scp"></a>scp</h3><p><code>scp source target</code><br><code>target</code>可以使用<code>ssh_config</code>的<code>Host</code>配置。</p>
+<h2 id="远程编辑文件"><a href="#远程编辑文件" class="headerlink" title="远程编辑文件"></a>远程编辑文件</h2><p>来源：<a target="_blank" rel="noopener" href="https://morland96.github.io/2017/10/31/ssh-jump/">SSH通过跳板机连接服务器
+</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim scp:&#x2F;&#x2F;&lt;remote-host&gt;&#x2F;&lt;file-path&gt;</span><br></pre></td></tr></table></figure>
+<p>scp会将文件拷贝至tmp文件处，然后由<code>vim</code>在本地编辑。<br>不过目前看下来，反应比较慢。</p>
+<h2 id="端口转发"><a href="#端口转发" class="headerlink" title="端口转发"></a>端口转发</h2><blockquote>
+<p>内容未验证</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://morland96.github.io/2017/10/31/ssh-jump/">SSH通过跳板机连接服务器</a></p>
+<ul>
+<li>端口转发命令</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ssh [-L address] [user@]hostname [command]</span><br><span class="line"> -L [bind_address:]port:host:hostport</span><br><span class="line"> -L [bind_address:]port:remote_socket</span><br><span class="line"> -L local_socket:host:hostport</span><br><span class="line"> -L local_socket:remote_socket</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 完整用法：</span></span><br><span class="line"> ssh -L 2222:&lt;remote-host&gt;:22  user@&lt;jump-server&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"> ssh -L local-port:remote-address:remote-port user@ssh-host</span></span><br></pre></td></tr></table></figure>
+<p>将<code>remote-host</code>的22端口，通过<code>jump-server</code>转发到本地（运行这条命令的机器）的2222端口。所有对本地<code>2222</code>端口的请求，都会通过<code>jump-server</code>转发至<code>remote-host</code>的<code>22</code>端口。</p>
+<blockquote>
+<p><code>[-R address]</code>参数和<code>[-L address]</code>刚好相反，等验证完成后，分别写一遍。</p>
+</blockquote>
+<blockquote>
+<p>尝试解释：<br><code>[-L address]</code>只是连接过程中的一个可选参数，<code>host:hostport</code>是由<code>remotehost</code>进行解析的，<code>port</code>是<code>client</code>端的 port。</p>
+</blockquote>
+<h2 id="跳板机"><a href="#跳板机" class="headerlink" title="跳板机"></a>跳板机</h2><p><code>client</code> –&gt;&gt; <code>jump-server</code> –&gt;&gt; <code>target-server</code></p>
+<p>通过<code>ssh_config</code>可以隐藏跳板机命令，大大简化执行时命令的复杂度。</p>
+<h3 id="1-跳板机作为网络中转"><a href="#1-跳板机作为网络中转" class="headerlink" title="1. 跳板机作为网络中转"></a>1. 跳板机作为网络中转</h3><p><a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/SSH_jump_host">SSH_ProxyJump</a></p>
+<p>跳板机本身，不存任何内容，之所以需要跳板机，只是为了绕过网络连接的限制（target只开放内网访问）。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Host target</span><br><span class="line">    User root</span><br><span class="line">    IdentityFile ~/.ssh/target_rsa</span><br><span class="line">    HostName yy.yy.yy.yy # jump 可以连接的 ip（未验证：是否支持 jump 可以解析的 host（client 不支持解析的）</span><br><span class="line">    ProxyCommand ssh -W %h:%p jump</span><br><span class="line">Host jump</span><br><span class="line">    HostName xx.xx.xx.xx</span><br><span class="line">    User root</span><br><span class="line">    IdentityFile ~/.ssh/jump_rsa</span><br></pre></td></tr></table></figure>
+<ul>
+<li>总结</li>
+</ul>
+<p>像往常一样配置两个服务器。需要跳板机的机器，额外加一个<code>ProxyCommand ssh -W %h:%p jump</code> 就可以。</p>
+<ul>
+<li>ssh 命令参数</li>
+</ul>
+<p><code>-W host:port</code>：将所有<code>client</code>上的标准输入和标准输出，转发至<code>host</code>的<code>port</code>端口。自动设置<code>-N, -T, ExitOnForwardFailure and ClearAllForwardings</code>四个选项，如果需要修改以上设置，可以通过<code>-o</code>，或者在<code>config</code>中配置。</p>
+<h4 id="ProxyJump-命令"><a href="#ProxyJump-命令" class="headerlink" title="ProxyJump 命令"></a>ProxyJump 命令</h4><p>proxyjump 能够实现相同效果。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Host target</span><br><span class="line">    User root</span><br><span class="line">    IdentityFile ~/.ssh/id_rsa</span><br><span class="line">    HostName yy.yy.yy.yy</span><br><span class="line">    ProxyJump jump</span><br><span class="line">Host jump</span><br><span class="line">    User app</span><br><span class="line">    HostName xx.xx.xx.xx</span><br><span class="line">    IdentityFile ~/.ssh/id_rsa</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意，该功能，需要比较新的 ssh client 客户端支持。</p>
+</blockquote>
+<h3 id="2-跳板机才有-target-key"><a href="#2-跳板机才有-target-key" class="headerlink" title="2. 跳板机才有 target key"></a>2. 跳板机才有 target key</h3><p><a target="_blank" rel="noopener" href="https://serverfault.com/questions/337274/ssh-from-a-through-b-to-c-using-private-key-on-b">ssh-from-a-through-b-to-c-using-private-key-on-b</a><br><a target="_blank" rel="noopener" href="https://wiki.archlinux.org/index.php/SSH_keys#SSH_agents">ssh-agent</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 需要先在本地启动 ssh-agent，有的已经默认启动。</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 目前测试下来，MacOS 不需要执行，Ubuntu18 需要。</span></span><br><span class="line">eval $(ssh-agent)</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 可以根据以下命令的输出，判断是否已经开启 ssh-agent。</span></span><br><span class="line">echo $SSH_AUTH_SOCK</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Host target</span><br><span class="line">    User root</span><br><span class="line">    HostName yy.yy.yy.yy</span><br><span class="line">    ProxyCommand ssh -o &#39;ForwardAgent yes&#39; jump &#39;ssh-add &amp;&amp; nc %h %p&#39;</span><br><span class="line">Host jump</span><br><span class="line">    User app</span><br><span class="line">    HostName xx.xx.xx.xx</span><br><span class="line">    IdentityFile ~&#x2F;.ssh&#x2F;id_rsa</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这种跳板模式，会把跳板机中的<code>ssh key</code>信息加入到当前机器的<code>ssh-agent</code>中，退出后仍然存在，会存在一定影响。</p>
+</blockquote>
+<blockquote>
+<p>可以使用<code>ssh-add -l</code>查看已添加私钥，使用<code>ssh-add -D</code>删除<code>ssh-agent</code>中所有私钥，使用<code>ssh-add -d</code>删除特定。</p>
+</blockquote>
+<ul>
+<li>示例</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ssh target</span><br><span class="line"><span class="meta">#</span><span class="bash"> 会有以下提示，是把 jump 的 私钥 key 给加进来了</span></span><br><span class="line">Identity added: /home/app/.ssh/id_rsa (/home/app/.ssh/id_rsa)</span><br></pre></td></tr></table></figure>
+<h1 id="SSH-Agent"><a href="#SSH-Agent" class="headerlink" title="SSH Agent"></a>SSH Agent</h1><p>相关命令：<code>ssh-add</code>,<code>ssh-agent</code></p>
+<h2 id="Agent-forwarding-携带-ssh-key-信息"><a href="#Agent-forwarding-携带-ssh-key-信息" class="headerlink" title="Agent-forwarding 携带 ssh key 信息"></a>Agent-forwarding 携带 ssh key 信息</h2><p><a target="_blank" rel="noopener" href="https://developer.github.com/v3/guides/using-ssh-agent-forwarding/">Using SSH agent forwarding</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/mr_raptor/article/details/51779339">SSH-Agent-Forwarding</a></p>
+<p>在服务器上，使用本地 ssh key 进行操作。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># config</span><br><span class="line">Host example</span><br><span class="line">    ForwardAgent yes</span><br><span class="line">    </span><br><span class="line"># or</span><br><span class="line">ssh -A user@host    </span><br></pre></td></tr></table></figure>
+<p>完整操作</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 启动 ssh-agent macOS 不一定需要</span></span><br><span class="line">eval $(ssh-agent)</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 使用 ssh-add 将当前机器账号私钥添加到 ssh-agent 中</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> ssh-add 默认添加 ~/.ssh/id_rsa 系列默认私钥，如果要添加其他位置，需要指定地址</span></span><br><span class="line">ssh-add</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 启用 agent-forwarding 连接</span></span><br><span class="line">ssh -A example</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 然后可以进行一些，需要client私钥的行为，比如 GitHub <span class="built_in">clone</span></span></span><br><span class="line">ssh -T git@github.com</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>yleaf
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://leavesster.github.io/2020/01/01/ssh%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C/" title="SSH 速查手册">https://leavesster.github.io/2020/01/01/ssh速查手册/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/03/28/python-env/" rel="prev" title="python虚拟环境">
+                  <i class="fa fa-chevron-left"></i> python虚拟环境
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/07/08/Android-webview/" rel="next" title="Android WebView 资源拦截">
+                  Android WebView 资源拦截 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yleaf</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
