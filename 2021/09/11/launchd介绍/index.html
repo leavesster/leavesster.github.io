@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"leavesster.github.io","root":"/","scheme":"Gemini","version":"8.0.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+
+  <meta name="description" content="lauchd 是可以统一管理守护进程，应用，脚本的开源服务管理框架。 守护进程是在后台运行，不需要用户输入的一类程序。  launchd 会区分守护进程（daemon）与代理进程(agent)。前者可以以root用户，或者以UserName字段中定义的用户运行；而代理进程，只能使用登录用户运行。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="launchd介绍">
+<meta property="og:url" content="https://leavesster.github.io/2021/09/11/launchd%E4%BB%8B%E7%BB%8D/index.html">
+<meta property="og:site_name" content="yleaf&#39;s Blog">
+<meta property="og:description" content="lauchd 是可以统一管理守护进程，应用，脚本的开源服务管理框架。 守护进程是在后台运行，不需要用户输入的一类程序。  launchd 会区分守护进程（daemon）与代理进程(agent)。前者可以以root用户，或者以UserName字段中定义的用户运行；而代理进程，只能使用登录用户运行。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-09-11T21:51:01.000Z">
+<meta property="article:modified_time" content="2021-09-11T21:51:01.000Z">
+<meta property="article:author" content="yleaf">
+<meta property="article:tag" content="macOS">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://leavesster.github.io/2021/09/11/launchd%E4%BB%8B%E7%BB%8D/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>launchd介绍 | yleaf's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">yleaf's Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1%E5%AE%9A%E4%B9%89"><span class="nav-number">1.</span> <span class="nav-text">任务定义</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E8%BD%BD%E9%80%BB%E8%BE%91"><span class="nav-number">1.1.</span> <span class="nav-text">加载逻辑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E8%BD%BD%E5%B9%B6%E9%9D%9E%E5%90%AF%E5%8A%A8"><span class="nav-number">1.2.</span> <span class="nav-text">加载并非启动</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">2.</span> <span class="nav-text">常用配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RunAtLoad"><span class="nav-number">2.1.</span> <span class="nav-text">RunAtLoad</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KeepAlive"><span class="nav-number">2.2.</span> <span class="nav-text">KeepAlive</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E5%BA%94%E7%94%A8%E2%80%94%E2%80%94%E5%90%AF%E5%8A%A8%E9%A1%B9"><span class="nav-number">3.</span> <span class="nav-text">相关应用——启动项</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E8%BD%BD%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">4.</span> <span class="nav-text">重载数据库</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E5%BD%95Job%E5%90%AF%E7%94%A8%E7%8A%B6%E6%80%81"><span class="nav-number">4.1.</span> <span class="nav-text">记录Job启用状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A0%E9%99%A4Job%E9%85%8D%E7%BD%AE"><span class="nav-number">4.2.</span> <span class="nav-text">删除Job配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#OSX-10-5-Leopard-OSX-10-9-Mavericks"><span class="nav-number">4.2.1.</span> <span class="nav-text">OSX 10.5 Leopard - OSX 10.9 Mavericks</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#OSX-10-10-Yosemite-and-later"><span class="nav-number">4.2.2.</span> <span class="nav-text">OSX 10.10 Yosemite and later</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E7%B3%BB%E7%BB%9F%E7%BA%A7%E5%88%AB-job-%E9%85%8D%E7%BD%AE%E9%A1%B9%EF%BC%88%E5%85%B3%E9%97%AD-sip%EF%BC%89"><span class="nav-number">5.</span> <span class="nav-text">修改系统级别 job 配置项（关闭 sip）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#OS-X-10-11-El-Capitan-and-newer"><span class="nav-number">5.0.1.</span> <span class="nav-text">OS X 10.11 El Capitan and newer</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#macOS-10-15-Catalina"><span class="nav-number">5.0.2.</span> <span class="nav-text">macOS 10.15 Catalina</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">yleaf</p>
+  <div class="site-description" itemprop="description">一些笔记，尽量没废话</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://leavesster.github.io/2021/09/11/launchd%E4%BB%8B%E7%BB%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yleaf">
+      <meta itemprop="description" content="一些笔记，尽量没废话">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yleaf's Blog">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          launchd介绍
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-09-11 21:51:01" itemprop="dateCreated datePublished" datetime="2021-09-11T21:51:01+00:00">2021-09-11</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>lauchd 是可以统一管理守护进程，应用，脚本的开源服务管理框架。</p>
+<p>守护进程是在后台运行，不需要用户输入的一类程序。</p>
+<ul>
+<li>launchd 会区分守护进程（<code>daemon</code>）与代理进程(<code>agent</code>)。前者可以以<code>root</code>用户，或者以<code>UserName</code>字段中定义的用户运行；而代理进程，只能使用登录用户运行。</li>
+</ul>
+<h2 id="任务定义"><a href="#任务定义" class="headerlink" title="任务定义"></a>任务定义</h2><p>守护进程（<code>daemon</code>）与代理进程(<code>agent</code>)的行为配置，都保存一个叫 property list 的<code>XML</code>中。<br>系统会根据其存储的地方，来判断守护进程（<code>daemon</code>）与代理进程(<code>agent</code>)。</p>
+<blockquote>
+<p>Job Definitions</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Location</th>
+<th>Run on behalf of</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>User Agents</td>
+<td>~/Library/LaunchAgents</td>
+<td>Currently logged in user</td>
+</tr>
+<tr>
+<td>Global Agents</td>
+<td>/Library/LaunchAgents</td>
+<td>Currently logged in user</td>
+</tr>
+<tr>
+<td>Global Daemons</td>
+<td>/Library/LaunchDaemons</td>
+<td>root or the user specified with the key UserName</td>
+</tr>
+<tr>
+<td>System Agents</td>
+<td>/System/Library/LaunchAgents</td>
+<td>Currently logged in user</td>
+</tr>
+<tr>
+<td>System Daemons</td>
+<td>/System/Library/LaunchDaemons</td>
+<td>root or the user specified with the key UserName</td>
+</tr>
+</tbody></table>
+<p>定义文件主要有三个字段：</p>
+<ol>
+<li><code>Label</code>: 强制要求，对于 launchd 而言，该值需要具有唯一性。理论上来说，由于代理进程和守护进程的启动用户不同，所以他们可以有相同的值，但是不推荐。</li>
+<li><code>Program</code>: 程序的调用位置。</li>
+<li><code>RunAtLoad</code>: 该字段有多个子字段，定义任务什么时候运行，以及其他相关行为。</li>
+</ol>
+<blockquote>
+<p><code>Disable</code>字段可以设置是否加载该任务。</p>
+</blockquote>
+<ul>
+<li>XML 示例：</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">plist</span> <span class="meta-keyword">PUBLIC</span> <span class="meta-string">&quot;-//Apple//DTD PLIST 1.0//EN&quot;</span> <span class="meta-string">&quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plist</span> <span class="attr">version</span>=<span class="string">&quot;1.0&quot;</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">key</span>&gt;</span>Label<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">string</span>&gt;</span>com.example.app<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">key</span>&gt;</span>Program<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">string</span>&gt;</span>/Users/Me/Scripts/cleanup.sh<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">key</span>&gt;</span>RunAtLoad<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">true</span>/&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plist</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>launchd 支持超过 36 种不同的配置，他们大多数在 <a target="_blank" rel="noopener" href="https://www.launchd.info/">launchd</a> 的 Configuration 部分有详细解释。</p>
+<h3 id="加载逻辑"><a href="#加载逻辑" class="headerlink" title="加载逻辑"></a>加载逻辑</h3><blockquote>
+<p>Automatic Loading of Job Definitions</p>
+</blockquote>
+<ol>
+<li>系统守护进程(<code>Daemons</code>)加载：系统会自动加载 <code>/System/Library/LaunchDaemons</code>和<code>/Library/LaunchDaemons</code>的文件。然后根据<code>Disable</code>字段以及<code>重载数据库</code>中的内容，来决定是否加载。</li>
+<li>用户代理(<code>Agents</code>)加载：当用户登录后，系统会有专门为该用户启动的新 launchd 进程，该进程会扫描<code>/System/Library/LaunchAgents</code>，<code>/Library/LaunchAgents</code>和<code>~/Library/LaunchAgents</code>目录，同样基于<code>Disable</code>字段和<code>重载数据库</code>字段，来决定是否加载。</li>
+</ol>
+<h3 id="加载并非启动"><a href="#加载并非启动" class="headerlink" title="加载并非启动"></a>加载并非启动</h3><blockquote>
+<p>Loading vs Starting</p>
+</blockquote>
+<p>加载任务，并不意味着启动任务。任务何时启动，只取决于任务定义中的时机。只有当<code>RunAtLoad</code>为 true 或<code>KeepAlive</code>被定义时，launchd 才会在加载时无条件启动。</p>
+<h2 id="常用配置"><a href="#常用配置" class="headerlink" title="常用配置"></a>常用配置</h2><h3 id="RunAtLoad"><a href="#RunAtLoad" class="headerlink" title="RunAtLoad"></a>RunAtLoad</h3><p>加载时，自动启动，Boolean 字段</p>
+<h3 id="KeepAlive"><a href="#KeepAlive" class="headerlink" title="KeepAlive"></a>KeepAlive</h3><p>该配置有好几种选项，可以为Boolean，也可以为字典。</p>
+<ul>
+<li>true: 永远保持运行状态，如果进程被关闭，会自动重启。</li>
+<li>SuccessfulExit: 该字段有 true 和 false。true 表示，只有当正常退出（exit code 为 0）时，会重新启动；false 表示，只有当非正常退出时，才会重新启动。</li>
+<li>Crashed: true 表示，crash 时，才重启；false 表示，crash 时，不重启。<br>还有一些其他奇怪的字段。</li>
+</ul>
+<h2 id="相关应用——启动项"><a href="#相关应用——启动项" class="headerlink" title="相关应用——启动项"></a>相关应用——启动项</h2><blockquote>
+<p>本小节主要内容来自：<a target="_blank" rel="noopener" href="https://www.launchd.info/">launchd</a> operation 部分。</p>
+</blockquote>
+<blockquote>
+<p>普通启动项<br>系统设置 —— 用户与群组 —— 登录项<br>一般应用，主要是那些老实的应用，或者自己主动配置的，会在这里启动。</p>
+</blockquote>
+<p>部分应用，会利用 launchd 配置启动项。launchd 对于 Job 的加载，是基于其配置文件的 Disable 字段以及自身数据库。所以可以简单的使用 launchd 命令去取消其对任务的加载，从而达到取消该启动项。</p>
+<blockquote>
+<p>Disable 字段有时候会被应用自动修改回去，不如通过将禁用状态记录到<code>重载数据库</code>中来的简单有效。</p>
+</blockquote>
+<h2 id="重载数据库"><a href="#重载数据库" class="headerlink" title="重载数据库"></a>重载数据库</h2><p>launchd 在准备加载 job 时，会先检查<code>Disable</code>字段。<code>Disable</code>的 job，不会被加载。不过该字段的值，可以在<code>override database</code>中覆盖。</p>
+<blockquote>
+<p>有效防止部分程序每次自动修改该值的行为。</p>
+</blockquote>
+<h3 id="记录Job启用状态"><a href="#记录Job启用状态" class="headerlink" title="记录Job启用状态"></a>记录Job启用状态</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 命令行下使用的是：`launchctl`，对守护进程 daemon 需要使用`sudo`。</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 永久禁用任务</span></span><br><span class="line">launchctl unload -w ~/Library/LaunchAgents/com.example.app.plist</span><br><span class="line"><span class="meta">#</span><span class="bash"> 永久启用任务</span></span><br><span class="line">launchctl load -w ~/Library/LaunchAgents/com.example.app.plist</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>在 OSX 10.10 Yosemite 以及后续系统中，Job 状态可以切换，但是无法简单地将这个 job 内容从<code>重载数据库</code>中删除（删除文件同样可以禁用）。</p>
+</blockquote>
+<blockquote>
+<p>The database for daemons is <code>/var/db/launchd.db/com.apple.launchd/overrides.plist</code> (OSX 10.5 – OSX 10.9) or <code>/var/db/com.apple.xpc.launchd/disabled.plist</code> (OSX 10.10 and later).</p>
+</blockquote>
+<h3 id="删除Job配置"><a href="#删除Job配置" class="headerlink" title="删除Job配置"></a>删除Job配置</h3><p>该数据虽然可以覆盖，但是一旦覆盖后，就无法正常使用 job 中的字段，也会造成一定问题。</p>
+<h4 id="OSX-10-5-Leopard-OSX-10-9-Mavericks"><a href="#OSX-10-5-Leopard-OSX-10-9-Mavericks" class="headerlink" title="OSX 10.5 Leopard - OSX 10.9 Mavericks"></a>OSX 10.5 Leopard - OSX 10.9 Mavericks</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> agents</span></span><br><span class="line">host:~ user$ sudo /usr/libexec/Plistbuddy /var/db/launchd.db/com.apple.launchd.peruser.`echo $UID`/overrides.plist -c Delete:local.job</span><br><span class="line"><span class="meta">#</span><span class="bash"> daemons</span></span><br><span class="line">host:~ user$ sudo /usr/libexec/Plistbuddy /var/db/launchd.db/com.apple.launchd/overrides.plist -c Delete:local.job</span><br></pre></td></tr></table></figure>
+<h4 id="OSX-10-10-Yosemite-and-later"><a href="#OSX-10-10-Yosemite-and-later" class="headerlink" title="OSX 10.10 Yosemite and later"></a>OSX 10.10 Yosemite and later</h4><blockquote>
+<p>如果是移除代理程序，则可能需要获取当前用户的 </p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">user id</span><br><span class="line">id -u</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>根据 Apple 教程进入恢复模式。<a target="_blank" rel="noopener" href="https://www.launchd.info/">launch</a>-operation。</p>
+</blockquote>
+<p>在 工具选项下，选择 terminal。</p>
+<blockquote>
+<p>以下方法，假设系统盘为<code>Macintosh HD</code>，如果有不同，需要进行修改.</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> local.job 需要替换为需要删除 job 的 Label</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除代理进程</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 需要将 502 需要更换为实际的 UID</span></span><br><span class="line">/usr/libexec/Plistbuddy &quot;/Volumes/Macintosh HD/var/db/com.apple.xpc.launchd/disabled.502.plist&quot; -c Delete:local.job</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除守护进程</span></span><br><span class="line">/usr/libexec/Plistbuddy &quot;/Volumes/Macintosh HD/var/db/com.apple.xpc.launchd/disabled.plist&quot; -c Delete:local.job</span><br></pre></td></tr></table></figure>
+<ul>
+<li>步骤三：重启</li>
+</ul>
+<blockquote>
+<p>目前如果不是洁癖，可以单纯地对文件进行禁用。无需删除数据库中的内容。</p>
+</blockquote>
+<h2 id="修改系统级别-job-配置项（关闭-sip）"><a href="#修改系统级别-job-配置项（关闭-sip）" class="headerlink" title="修改系统级别 job 配置项（关闭 sip）"></a>修改系统级别 job 配置项（关闭 sip）</h2><h4 id="OS-X-10-11-El-Capitan-and-newer"><a href="#OS-X-10-11-El-Capitan-and-newer" class="headerlink" title="OS X 10.11 El Capitan and newer"></a>OS X 10.11 El Capitan and newer</h4><p>OS X 10.11 El Capitan introduced System Integrity Protection (SIP). This feature provides an additional layer of security by protecting certain sytem files from modification even by root. In order to make changes to those protected files you have to disable SIP:</p>
+<ol>
+<li>Restart your Mac</li>
+<li>Hold down ⌘R before macOS starts up. Hold these keys until the Apple logo appears. After your computer finishes starting up, you should see a Desktop with a menu bar and a window offering several utility functions.</li>
+<li>Select Terminal from the Utilities menu (the menu, not said window)</li>
+<li>Type csrutil disable and press the ⏎ key.</li>
+<li>You should see a message that System Integrity Protection has been disabled</li>
+<li>Reboot by entering reboot and press the ⏎ key.</li>
+</ol>
+<p>SIP is now disabled.</p>
+<blockquote>
+<p>It is recommended to enable SIP again. Follow the instructions above. The command to enable SIP is csrutil enable</p>
+</blockquote>
+<h4 id="macOS-10-15-Catalina"><a href="#macOS-10-15-Catalina" class="headerlink" title="macOS 10.15 Catalina"></a>macOS 10.15 Catalina</h4><p>In addition to SIP macOS 10.15 Catalina separates the Operating System (OS) from the user data. The OS is mounted read-only, so even with SIP disabled you cannot make changes to system files. In order to mount the OS partition in read/write mode disable SIP (see above), open Termina.app and enter:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mount -uw &#x2F;</span><br></pre></td></tr></table></figure>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.launchd.info/">launchd</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/library/archive/technotes/tn2083/_index.html">Technical Note TN2083</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>yleaf
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://leavesster.github.io/2021/09/11/launchd%E4%BB%8B%E7%BB%8D/" title="launchd介绍">https://leavesster.github.io/2021/09/11/launchd介绍/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/macOS/" rel="tag"># macOS</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/09/12/shell-base/" rel="prev" title="编写 shell 的几个基础技巧">
+                  <i class="fa fa-chevron-left"></i> 编写 shell 的几个基础技巧
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yleaf</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

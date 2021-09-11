@@ -162,7 +162,7 @@
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
@@ -200,7 +200,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://leavesster.github.io/2021/01/18/logrotate/">
+    <link itemprop="mainEntityOfPage" href="https://leavesster.github.io/2021/09/11/launchd%E4%BB%8B%E7%BB%8D/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -217,7 +217,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/01/18/logrotate/" class="post-title-link" itemprop="url">logrotate配置手册</a>
+            <a href="/2021/09/11/launchd%E4%BB%8B%E7%BB%8D/" class="post-title-link" itemprop="url">launchd介绍</a>
         </h2>
 
         <div class="post-meta-container">
@@ -228,7 +228,7 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2021-01-18 00:00:00" itemprop="dateCreated datePublished" datetime="2021-01-18T00:00:00+00:00">2021-01-18</time>
+      <time title="创建时间：2021-09-11 21:51:01" itemprop="dateCreated datePublished" datetime="2021-09-11T21:51:01+00:00">2021-09-11</time>
     </span>
 
   
@@ -241,11 +241,14 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <h1 id="logrotate"><a href="#logrotate" class="headerlink" title="logrotate"></a>logrotate</h1><p>一般情况下，Linux 下进程，都会将日志存储在<code>/var/log</code>文件夹。大多数发行版默认集成<code>logrotate</code>，用户通过配置，可以对日志进行切割，备份以及删除。</p>
-<h2 id="rotate"><a href="#rotate" class="headerlink" title="rotate"></a>rotate</h2>
+          <p>lauchd 是可以统一管理守护进程，应用，脚本的开源服务管理框架。</p>
+<p>守护进程是在后台运行，不需要用户输入的一类程序。</p>
+<ul>
+<li>launchd 会区分守护进程（<code>daemon</code>）与代理进程(<code>agent</code>)。前者可以以<code>root</code>用户，或者以<code>UserName</code>字段中定义的用户运行；而代理进程，只能使用登录用户运行。</li>
+</ul>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2021/01/18/logrotate/#more" rel="contents">
+              <a class="btn" href="/2021/09/11/launchd%E4%BB%8B%E7%BB%8D/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
