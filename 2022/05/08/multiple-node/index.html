@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"leavesster.github.io","root":"/","scheme":"Gemini","version":"8.0.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+
+  <meta name="description" content="社区通用的 node 多版本管理工具，有两个 —— nvm 与 tj&#x2F;n。 nvmnvm 比较流行，他不依赖 node 本身，需要单独安装。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2022 年多版本 node 管理工具安装方式">
+<meta property="og:url" content="https://leavesster.github.io/2022/05/08/multiple-node/index.html">
+<meta property="og:site_name" content="yleaf&#39;s Blog">
+<meta property="og:description" content="社区通用的 node 多版本管理工具，有两个 —— nvm 与 tj&#x2F;n。 nvmnvm 比较流行，他不依赖 node 本身，需要单独安装。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-05-08T02:10:00.000Z">
+<meta property="article:modified_time" content="2022-05-08T02:10:00.000Z">
+<meta property="article:author" content="yleaf">
+<meta property="article:tag" content="nodejs">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://leavesster.github.io/2022/05/08/multiple-node/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>2022 年多版本 node 管理工具安装方式 | yleaf's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">yleaf's Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#nvm"><span class="nav-number">1.</span> <span class="nav-text">nvm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#tj-n"><span class="nav-number">2.</span> <span class="nav-text">tj&#x2F;n</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%88%91%E7%9A%84%E5%AE%89%E8%A3%85%E6%96%B9%E5%BC%8F"><span class="nav-number">2.1.</span> <span class="nav-text">我的安装方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tj-n-%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%96%B9%E5%BC%8F%EF%BC%9A"><span class="nav-number">2.2.</span> <span class="nav-text">tj&#x2F;n 的工作方式：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95%E7%BA%A7%E5%88%AB%E5%AE%9A%E4%B9%89-node-%E7%89%88%E6%9C%AC"><span class="nav-number">3.</span> <span class="nav-text">目录级别定义 node 版本</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E5%88%87%E6%8D%A2"><span class="nav-number">3.1.</span> <span class="nav-text">自动切换</span></a></li></ol></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">yleaf</p>
+  <div class="site-description" itemprop="description">一些笔记，尽量没废话</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://leavesster.github.io/2022/05/08/multiple-node/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yleaf">
+      <meta itemprop="description" content="一些笔记，尽量没废话">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yleaf's Blog">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          2022 年多版本 node 管理工具安装方式
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-05-08 02:10:00" itemprop="dateCreated datePublished" datetime="2022-05-08T02:10:00+00:00">2022-05-08</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>社区通用的 node 多版本管理工具，有两个 —— <a target="_blank" rel="noopener" href="https://github.com/nvm-sh/nvm">nvm</a> 与 <a target="_blank" rel="noopener" href="https://github.com/tj/n">tj/n</a>。</p>
+<h2 id="nvm"><a href="#nvm" class="headerlink" title="nvm"></a>nvm</h2><p>nvm 比较流行，他不依赖 node 本身，需要单独安装。</p>
+<p>缺点：</p>
+<ol>
+<li>nvm 最大的问题是 nvm 的脚本会拖慢 shell 的启动速度。网上针对这个的推荐措施：写死一个常用的 node 地址，再针对 nvm 命令搞一堆懒加载。但是整个优化过程比较麻烦，同时分散在各个文章博客中，并没有官方推荐。所以懒加载过程并不是特别友好。</li>
+</ol>
+<p>优点：</p>
+<ol>
+<li>可以使用<code>nvm use</code>根据当前目录的<code>.nvmrc</code>文件，指定 node 版本，还可以通过 <a target="_blank" rel="noopener" href="https://github.com/nvm-sh/nvm#deeper-shell-integration">shell 脚本</a> 达到在不同目录，自动使用不同的 node 版本的效果。</li>
+<li>npm 跟随 node 版本走，全局包自带隔离。这一点是<code>tj/n</code>目前唯一无法直接满足的。</li>
+</ol>
+<h2 id="tj-n"><a href="#tj-n" class="headerlink" title="tj/n"></a>tj/n</h2><p>tj/n 默认<code>npm -g install n</code>的安装方式，需要一开始就有一个全局的<code>npm</code>。同时默认配置的<code>n</code>，下载 node 时，路径在<code>usr/local</code>，会导致下载时，需要使用<code>sudo</code>。</p>
+<p>优点：</p>
+<ol>
+<li>简单，速度快</li>
+<li>npm 全局共用，不用多次安装全局（<code>n exec &lt;vers&gt; &lt;cmd&gt; [args...]</code> 的全局包是与n全局环境的隔离的。哪怕他们实际是同一个node。）</li>
+</ol>
+<p>缺点：</p>
+<ol>
+<li>npm 全局包共用，有的全局包会要求 node 版本，可能会有问题。</li>
+</ol>
+<h3 id="我的安装方式"><a href="#我的安装方式" class="headerlink" title="我的安装方式"></a>我的安装方式</h3><p>根据官方给出的其他安装方式，以及实际体验效果，我选择以下安装方式，绕过需要提前安装<code>npm</code>的要求，同时绕过<code>sudo</code>限制：</p>
+<ol>
+<li>安装裸的 n<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install n</span><br></pre></td></tr></table></figure></li>
+<li>在对应 shell 配置文件中(zsh <code>~/.zshrc</code>)，配置 n 的环境变量<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 设置 tj/n 的下载路径，默认在 /usr/<span class="built_in">local</span> 中，需要使用 sudo 安装。通过修改下载地址，可以避免权限问题</span></span><br><span class="line">export N_PREFIX=&quot;$HOME/.n&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 如果当前环境没有 npm，第一次安装 node 时，不能配置，否则没有全局 npm 可以使用。</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">export</span> N_PRESERVE_NPM=1</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 将 tj/n 添加到 PATH。放在前面是为了覆盖旧的 node 和 npm，如果没有这个需求，可以随便放。</span></span><br><span class="line">export PATH=&quot;$N_PREFIX/bin:$PATH&quot;</span><br></pre></td></tr></table></figure></li>
+<li>使用 n 安装一个 node 版本，由于没有设置<code>N_PRESERVE_NPM</code>此时会自带一个 npm 。<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装 lts 版本 node</span></span><br><span class="line">n lts</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>使用以上的安装方式，不需要前置<code>node</code>和<code>npm</code>，环境配置干净，非常适合新机环境操作。</p>
+<p>如果在安装<code>n</code>前，已经安装了node，存在全局<code>npm</code>，这完全可以使用<code>npm install -g n</code>的方式进行安装，不过此时要根据自身情况，决定是否通过设置<code>N_PRESERVE_NPM</code>来保留这个旧的全局的<code>npm</code>。</p>
+<h3 id="tj-n-的工作方式："><a href="#tj-n-的工作方式：" class="headerlink" title="tj/n 的工作方式："></a>tj/n 的工作方式：</h3><ol>
+<li>下载预编译好的 node 版本，复制到<code>$N_PREFIX/bin</code>的目录中，通过修改<code>PATH</code>的方式，覆盖 node命令的查找逻辑。</li>
+<li>如果没有设置<code>N_PRESERVE_NPM</code>变量，这个<code>$N_PREFIX/bin</code>目录，还会带一份<code>npm</code>和<code>npx</code>的软链接。<ol>
+<li>虽然 npm 有隔离，但是实际上全局包都是安装在同一个目录(非<code>win</code>系统，在 <code>$(npm config get prefix)/lib/node_modules</code>下，如果要添加到<code>bin</code>的话，则是<code>$(npm config get prefix)/bin/</code>)中，在<code>n</code>进行<code>npm</code>切换时，并不会操作这个目录。所以全局包并没有被隔离。</li>
+</ol>
+</li>
+<li>所有下载的都会存放在缓存目录中，所有已下载的版本，可以通过<code>n which</code>和<code>n run</code>以及<code>n exec</code>方式进行调用。</li>
+</ol>
+<h2 id="目录级别定义-node-版本"><a href="#目录级别定义-node-版本" class="headerlink" title="目录级别定义 node 版本"></a>目录级别定义 node 版本</h2><p><code>n auto</code>可以自动根据<code>.n-node-version</code>,<code>.node-version</code>,<code>.nvmrc</code>来指定对应目录的 node 版本。如果没有以上文件，还会查找<code>package.json</code>中的<code>engine</code>字段，通过<code>npx semver</code>命令来确认对应兼容的 node 版本。</p>
+<h3 id="自动切换"><a href="#自动切换" class="headerlink" title="自动切换"></a>自动切换</h3><p>可以使用<a target="_blank" rel="noopener" href="https://github.com/wbyoung/avn">avn</a>来做目录 node 自动切换，该命令支持 <code>n</code>和<code>nvm</code>(未尝试使用该功能)<br>nvm 官方提供了一个轻量级<code>avn</code>实现，可以自动目录中的读取<code>.nvmrc</code>文件，来做到自动切换。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>yleaf
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://leavesster.github.io/2022/05/08/multiple-node/" title="2022 年多版本 node 管理工具安装方式">https://leavesster.github.io/2022/05/08/multiple-node/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/nodejs/" rel="tag"># nodejs</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/09/11/launchd%E4%BB%8B%E7%BB%8D/" rel="prev" title="launchd介绍">
+                  <i class="fa fa-chevron-left"></i> launchd介绍
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yleaf</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
