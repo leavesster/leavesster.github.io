@@ -21,12 +21,12 @@
     var CONFIG = {"hostname":"leavesster.github.io","root":"/","scheme":"Gemini","version":"8.0.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
   </script>
 
-  <meta name="description" content="lauchd 是可以统一管理守护进程，应用，脚本的开源服务管理框架。 守护进程是在后台运行，不需要用户输入的一类程序。  launchd 会区分守护进程（daemon）与代理进程(agent)。前者可以以root用户，或者以UserName字段中定义的用户运行；而代理进程，只能使用登录用户运行。">
+  <meta name="description" content="launchd 是可以统一管理守护进程，应用，脚本的开源服务管理框架。 守护进程是在后台运行，不需要用户输入的一类程序。  launchd 会区分守护进程（daemon）与代理进程(agent)。前者可以以root用户，或者以UserName字段中定义的用户运行；而代理进程，只能使用登录用户运行。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="launchd介绍">
 <meta property="og:url" content="https://leavesster.github.io/2021/09/11/launchd%E4%BB%8B%E7%BB%8D/index.html">
 <meta property="og:site_name" content="yleaf&#39;s Blog">
-<meta property="og:description" content="lauchd 是可以统一管理守护进程，应用，脚本的开源服务管理框架。 守护进程是在后台运行，不需要用户输入的一类程序。  launchd 会区分守护进程（daemon）与代理进程(agent)。前者可以以root用户，或者以UserName字段中定义的用户运行；而代理进程，只能使用登录用户运行。">
+<meta property="og:description" content="launchd 是可以统一管理守护进程，应用，脚本的开源服务管理框架。 守护进程是在后台运行，不需要用户输入的一类程序。  launchd 会区分守护进程（daemon）与代理进程(agent)。前者可以以root用户，或者以UserName字段中定义的用户运行；而代理进程，只能使用登录用户运行。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-09-11T21:51:01.000Z">
 <meta property="article:modified_time" content="2021-09-11T21:51:01.000Z">
@@ -250,7 +250,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <p>lauchd 是可以统一管理守护进程，应用，脚本的开源服务管理框架。</p>
+        <p>launchd 是可以统一管理守护进程，应用，脚本的开源服务管理框架。</p>
 <p>守护进程是在后台运行，不需要用户输入的一类程序。</p>
 <ul>
 <li>launchd 会区分守护进程（<code>daemon</code>）与代理进程(<code>agent</code>)。前者可以以<code>root</code>用户，或者以<code>UserName</code>字段中定义的用户运行；而代理进程，只能使用登录用户运行。</li>
