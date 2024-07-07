@@ -157,12 +157,12 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-count">10</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
@@ -201,6 +201,77 @@
       
 
       
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://leavesster.github.io/2024/07/07/release-please%20%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yleaf">
+      <meta itemprop="description" content="一些笔记，尽量没废话">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yleaf's Blog">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/07/07/release-please%20%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/" class="post-title-link" itemprop="url">release-please 使用手册</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-07-07 00:00:00" itemprop="dateCreated datePublished" datetime="2024-07-07T00:00:00+00:00">2024-07-07</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p><a target="_blank" rel="noopener" href="https://github.com/googleapis/release-please">googleapis/release-please</a> 可以在根据 <a target="_blank" rel="noopener" href="https://www.conventionalcommits.org/">Conventional Commit messages</a> 格式的 git commit 生成 changelog 的同时，更新版本号，生成 <code>github pull request</code>，打 tag 以及 GitHub release 为一体的工具。它与 github 强绑定，属于 GitHub 工作流工具。</p>
+<h2 id="使用准备"><a href="#使用准备" class="headerlink" title="使用准备"></a>使用准备</h2><p>配置 github token 以及相关权限<br>    github Action 中，可以使用 <code>secret.GITHUB_TOKEN</code>，需要配置 github token 的 <code>contents</code> 和<code>pull-request</code>  的写权限。<br><a target="_blank" rel="noopener" href="https://github.com/google-github-actions/release-please-action">github Action</a><br>    在实际使用中，由于 cli 操作过于繁琐（每次都需附带 token 和 repo url），建议使用 GitHub Action 进行自动化操作。<br>    &gt; 注意：使用 GitHub 提供给 Action 的 github.token 时，Action 的所有操作，都无法触发其他的 Action。<br>    因此如果想触发其他的 workflow 需要使用 PAT。 fine-grained PAT 需要提供 <code>Contents</code> 和 <code>pull requests</code> 权限。 相关权限参考<a target="_blank" rel="noopener" href="https://github.com/google-github-actions/release-please-action?tab=readme-ov-file#github-credentials">文档</a>。<br>配置好 <a target="_blank" rel="noopener" href="https://github.com/googleapis/release-please/blob/main/docs/manifest-releaser.md#configfile">config 文件</a> 和 <a target="_blank" rel="noopener" href="https://github.com/googleapis/release-please/blob/main/docs/manifest-releaser.md">manifest</a><br>    必须指定好正确的 release-please，不同的 release-type 会决定工具查找版本文件的逻辑。<br>    手动配置 manifest 而不使用 cli 的 bootstrap 命令。在 cli 里指定 release-type 会直接按照单 repo 生成。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2024/07/07/release-please%20%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+  
+  
+  
+
       
   
   

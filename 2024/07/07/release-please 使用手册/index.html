@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"leavesster.github.io","root":"/","scheme":"Gemini","version":"8.0.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+
+  <meta name="description" content="googleapis&#x2F;release-please 可以在根据 Conventional Commit messages 格式的 git commit 生成 changelog 的同时，更新版本号，生成 github pull request，打 tag 以及 GitHub release 为一体的工具。它与 github 强绑定，属于 GitHub 工作流工具。 使用准备配置 github to">
+<meta property="og:type" content="article">
+<meta property="og:title" content="release-please 使用手册">
+<meta property="og:url" content="https://leavesster.github.io/2024/07/07/release-please%20%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/index.html">
+<meta property="og:site_name" content="yleaf&#39;s Blog">
+<meta property="og:description" content="googleapis&#x2F;release-please 可以在根据 Conventional Commit messages 格式的 git commit 生成 changelog 的同时，更新版本号，生成 github pull request，打 tag 以及 GitHub release 为一体的工具。它与 github 强绑定，属于 GitHub 工作流工具。 使用准备配置 github to">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-07-07T00:00:00.000Z">
+<meta property="article:modified_time" content="2024-07-07T00:00:00.000Z">
+<meta property="article:author" content="yleaf">
+<meta property="article:tag" content="opensource">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://leavesster.github.io/2024/07/07/release-please%20%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>release-please 使用手册 | yleaf's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">yleaf's Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%87%86%E5%A4%87"><span class="nav-number">1.</span> <span class="nav-text">使用准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#monorepo-%E9%85%8D%E7%BD%AE"><span class="nav-number">2.</span> <span class="nav-text">monorepo 配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4"><span class="nav-number">2.1.</span> <span class="nav-text">操作步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%E7%89%88%E6%9C%AC"><span class="nav-number">3.</span> <span class="nav-text">更新版本</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%88%E6%9C%AC%E5%8F%B7%E6%9B%B4%E6%96%B0%E9%80%BB%E8%BE%91"><span class="nav-number">3.1.</span> <span class="nav-text">版本号更新逻辑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Release-As-%E5%8F%91%E5%B8%83%E6%8C%87%E5%AE%9A%E7%89%88%E6%9C%AC"><span class="nav-number">3.2.</span> <span class="nav-text">使用 Release-As 发布指定版本</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#monorepo"><span class="nav-number">3.2.1.</span> <span class="nav-text">monorepo</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#pr-%E6%A0%87%E8%AE%B0"><span class="nav-number">4.</span> <span class="nav-text">pr 标记</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#tag-%E9%80%BB%E8%BE%91"><span class="nav-number">5.</span> <span class="nav-text">tag 逻辑</span></a></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">yleaf</p>
+  <div class="site-description" itemprop="description">一些笔记，尽量没废话</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/leavesster" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;leavesster" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://leavesster.github.io/2024/07/07/release-please%20%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yleaf">
+      <meta itemprop="description" content="一些笔记，尽量没废话">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yleaf's Blog">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          release-please 使用手册
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-07-07 00:00:00" itemprop="dateCreated datePublished" datetime="2024-07-07T00:00:00+00:00">2024-07-07</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p><a target="_blank" rel="noopener" href="https://github.com/googleapis/release-please">googleapis/release-please</a> 可以在根据 <a target="_blank" rel="noopener" href="https://www.conventionalcommits.org/">Conventional Commit messages</a> 格式的 git commit 生成 changelog 的同时，更新版本号，生成 <code>github pull request</code>，打 tag 以及 GitHub release 为一体的工具。它与 github 强绑定，属于 GitHub 工作流工具。</p>
+<h2 id="使用准备"><a href="#使用准备" class="headerlink" title="使用准备"></a>使用准备</h2><p>配置 github token 以及相关权限<br>    github Action 中，可以使用 <code>secret.GITHUB_TOKEN</code>，需要配置 github token 的 <code>contents</code> 和<code>pull-request</code>  的写权限。<br><a target="_blank" rel="noopener" href="https://github.com/google-github-actions/release-please-action">github Action</a><br>    在实际使用中，由于 cli 操作过于繁琐（每次都需附带 token 和 repo url），建议使用 GitHub Action 进行自动化操作。<br>    &gt; 注意：使用 GitHub 提供给 Action 的 github.token 时，Action 的所有操作，都无法触发其他的 Action。<br>    因此如果想触发其他的 workflow 需要使用 PAT。 fine-grained PAT 需要提供 <code>Contents</code> 和 <code>pull requests</code> 权限。 相关权限参考<a target="_blank" rel="noopener" href="https://github.com/google-github-actions/release-please-action?tab=readme-ov-file#github-credentials">文档</a>。<br>配置好 <a target="_blank" rel="noopener" href="https://github.com/googleapis/release-please/blob/main/docs/manifest-releaser.md#configfile">config 文件</a> 和 <a target="_blank" rel="noopener" href="https://github.com/googleapis/release-please/blob/main/docs/manifest-releaser.md">manifest</a><br>    必须指定好正确的 release-please，不同的 release-type 会决定工具查找版本文件的逻辑。<br>    手动配置 manifest 而不使用 cli 的 bootstrap 命令。在 cli 里指定 release-type 会直接按照单 repo 生成。</p>
+<h2 id="monorepo-配置"><a href="#monorepo-配置" class="headerlink" title="monorepo 配置"></a>monorepo 配置</h2><p>monorepo 每一个 package 可以拥有独立的 changelog 和 Package version。更新日志也只会涉及当前 package 的 commit。<br>虽然文档中提到 monorepo 的支持可以通过<a target="_blank" rel="noopener" href="https://github.com/googleapis/release-please/blob/main/docs/manifest-releaser.md">配置 manifest 来支持</a>，但是具体操作语焉不详。最后参考微软博客 <a target="_blank" rel="noopener" href="https://devblogs.microsoft.com/ise/streamlining-development-through-monorepo-with-independent-release-cycles">Streamlining Development through Monorepo with Independent Release Cycles</a> 以及对应 <a target="_blank" rel="noopener" href="https://github.com/MitaWinata/monorepo_independent_releases/blob/main/.github/workflows/release.yaml">repo</a> ，以及参考 <a target="_blank" rel="noopener" href="https://github.com/npm/cli">npm/cli</a> 进行配置。<br>所有的配置文件，可以在 <a target="_blank" rel="noopener" href="https://github.com/leavesster/monorepo-changelog-example">monorepo-changelog-example</a> 里面查看。</p>
+<h3 id="操作步骤"><a href="#操作步骤" class="headerlink" title="操作步骤"></a>操作步骤</h3><p>自己写 manifest ，根据 package path 填好已有的版本号。<br>  在 config.json 里面写好每一个 package 的内容。<br>如下示例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"># manifest，默认文件名 .release-please-manifest.json</span><br><span class="line">&#123;</span><br><span class="line">  # 路径而不是包名</span><br><span class="line">  <span class="string">&quot;packages/a&quot;</span>: <span class="string">&quot;0.2.0&quot;</span>,</span><br><span class="line">  <span class="string">&quot;packages/b&quot;</span>: <span class="string">&quot;0.2.0&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># config，默认文件名 release-please-config.json</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;packages&quot;</span>: &#123;</span><br><span class="line">    # 路径</span><br><span class="line">    <span class="string">&quot;packages/a&quot;</span>: &#123;</span><br><span class="line">      &quot;component&quot;: &quot;b&quot; # 重命名包名，打 tag 和 pr 内容时使用</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">&quot;packages/b&quot;</span>: &#123;</span><br><span class="line">      <span class="string">&quot;component&quot;</span>: <span class="string">&quot;a&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;release-type&quot;: &quot;node&quot;, # 决定查找版本号的文件地址</span><br><span class="line">  <span class="string">&quot;plugins&quot;</span>: [<span class="string">&quot;node-workspace&quot;</span>],</span><br><span class="line">  <span class="string">&quot;$schema&quot;</span>: <span class="string">&quot;https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="更新版本"><a href="#更新版本" class="headerlink" title="更新版本"></a>更新版本</h2><h3 id="版本号更新逻辑"><a href="#版本号更新逻辑" class="headerlink" title="版本号更新逻辑"></a>版本号更新逻辑</h3><p>semantic version 的基础 <code>major.minor.patch</code>。<br>默认根据 <a target="_blank" rel="noopener" href="https://www.conventionalcommits.org/">Conventional Commit messages</a> 格式中的 fix 和 feat 两个 types 进行版本更新。<br>fix 更新 minor；feat 更新 patch；使用<code>fix!</code>, <code>feat!</code>,<code>refactor!</code>时，会更新 major。参考 <a target="_blank" rel="noopener" href="https://github.com/googleapis/release-please?tab=readme-ov-file#how-should-i-write-my-commits">如何编写 commit Message</a>。</p>
+<blockquote>
+<p>版本更新策略（<code>versioning</code>字段，值参考<a target="_blank" rel="noopener" href="https://github.com/googleapis/release-please/blob/main/docs/customizing.md#versioning-strategies">文档</a>）可以指定固定更新 <code>patch</code>/<code>minor</code>/<code>major</code> 等行为，也可以根据文档自己实现。  </p>
+</blockquote>
+<h3 id="使用-Release-As-发布指定版本"><a href="#使用-Release-As-发布指定版本" class="headerlink" title="使用 Release-As 发布指定版本"></a>使用 Release-As 发布指定版本</h3><p>除了使用 conventional commit 触发更新外，还可以在 commit body 使用 <a target="_blank" rel="noopener" href="https://github.com/googleapis/release-please?tab=readme-ov-file#how-do-i-change-the-version-number">release-as: x.y.z (大小写不敏感)</a> 信息发布指定的版本。</p>
+<h4 id="monorepo"><a href="#monorepo" class="headerlink" title="monorepo"></a>monorepo</h4><p>对于 monorepo，<code>release-as</code> 指令会先跟随原有逻辑，根据 commit 扫描出改动的 package，然后使用 release-as 指定的版本进行更新。<br>    <a target="_blank" rel="noopener" href="https://github.com/leavesster/monorepo-changelog-example/pull/2">测试 pr 2 更新所有 package 的版本</a><br>    <a target="_blank" rel="noopener" href="https://github.com/leavesster/release-please-monorepo-example/pull/4">测试 pr 4 只更新涉及到 Package 的版本</a><br>如果是空 commit 在 monorepo 应该会触发所有包的更新（未测试）。<br>使用<code>config.json</code>各个 package 的 <code>release-as</code>指定每个包的版本。每个 commit body 单独写不同的版本比较麻烦，也可以直接在 manifest 的每个 Package 里面写上 release-as 配置，指定下次发布的版本号。不过随之而来是下次需要单独删除。</p>
+<blockquote>
+<p>这个配置的优先级低于 cli 下直接使用 release-as 参数，但是不确定与 commit body 中 release-as 的优先级。  </p>
+</blockquote>
+<h2 id="pr-标记"><a href="#pr-标记" class="headerlink" title="pr 标记"></a>pr 标记</h2><p>如果 pr 列表不存在标签<code>autorelease: pending</code>   or   <code>autorelease: triggered</code> 的 pr，就会创建一个新 pr。<br>如果存在<code>autorelease: pending</code> 的 pr，则会去更新这个 pr（github Action 中的表现）<br>新增的 pr 更新的版本号逻辑：有 break change 升级 major；有 feat 升级 minor；有 fix 升级 patch。</p>
+<h2 id="tag-逻辑"><a href="#tag-逻辑" class="headerlink" title="tag 逻辑"></a>tag 逻辑</h2><p>目前打 release-please 打 tag 的逻辑：<br>    单 repo，直接是 v{major.minor.patch}<br>    monorepo：{componet}-v{major.minor.patch} component 名称。<br>tag 格式的配置，例如分隔符（默认<code>-</code>），<code>v</code>前缀配置。<br>前者可以在 config 中进行配置，字段为<code>tag-separator</code>，后者配置项为<code>include-v-in-tag</code>。</p>
+<blockquote>
+<p>注意 tag separator 支持的格式有限，最好使用在release-please 仓库的 <code>test/util/tag-name.ts</code> 里支持的格式。  </p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>yleaf
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://leavesster.github.io/2024/07/07/release-please%20%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/" title="release-please 使用手册">https://leavesster.github.io/2024/07/07/release-please 使用手册/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/opensource/" rel="tag"># opensource</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/01/30/pnpm-link/" rel="prev" title="pnpm link 使用手册">
+                  <i class="fa fa-chevron-left"></i> pnpm link 使用手册
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yleaf</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
